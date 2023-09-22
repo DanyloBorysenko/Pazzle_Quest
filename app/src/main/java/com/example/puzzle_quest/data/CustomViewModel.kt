@@ -19,28 +19,20 @@ class CustomViewModel : ViewModel() {
     private val _data = mutableListOf<PuzzleCell>()
     val data : List<PuzzleCell> = _data
 
-    fun changeScreen() {
-        when (uiState.value.isHomeScreenShown) {
-            true -> {
-                startGame()
-            }
-            else -> {
-                resetGame()
-            }
-        }
-    }
-
-    private fun resetGame() {
+    fun resetGame() {
         _data.clear()
-        _uiState.update { currentState ->
-            currentState.copy(isHomeScreenShown = true)
-        }
+        _uiState.value = PuzzleQuestUiState()
     }
 
-    private fun startGame() {
+    fun startGame() {
+        _data.clear()
         createPuzzles()
         _uiState.update { currentState ->
-            currentState.copy(isHomeScreenShown = false)
+            currentState.copy(
+                isHomeScreenShown = false,
+                startShufflePuzzles = true,
+                stepCount = 0,
+                isGameOver = false)
         }
     }
 
@@ -62,7 +54,7 @@ class CustomViewModel : ViewModel() {
         )
     }
 
-    fun onPuzzleClicked(clickedPuzzle: PuzzleCell) {
+    fun onPuzzleClicked(clickedPuzzle: PuzzleCell, isUserClicked: Boolean) {
         val size = clickedPuzzle.size
         val emptyPuzzle = _data.find { it.number == 0 } ?: throw RuntimeException("Empty puzzle doesn't exist")
         if (clickedPuzzle == emptyPuzzle) return
@@ -88,6 +80,27 @@ class CustomViewModel : ViewModel() {
         } else {
 
         }
+        if (isUserClicked) {
+            increaseStepCount()
+            checkResult()
+        }
+    }
+
+    private fun increaseStepCount() {
+        _uiState.update { currentState ->
+            currentState.copy(stepCount = currentState.stepCount + 1)
+        }
+    }
+
+    private fun checkResult() {
+        for (puzzle in _data) {
+            if (puzzle.offsetState != IntOffset.Zero) {
+                return
+            }
+        }
+        _uiState.update { currentState ->
+            currentState.copy(isGameOver = true)
+        }
     }
 
     private fun findPuzzlesNearEmptyPuzzle() : List<PuzzleCell> {
@@ -99,10 +112,10 @@ class CustomViewModel : ViewModel() {
         }
     }
     suspend fun shufflePuzzles() {
-        for (i in 0..100) {
-            delay(10)
+        for (i in 0..3) {
+            delay(3)
             val puzzleNearEmptyPuzzle = findPuzzlesNearEmptyPuzzle()
-            onPuzzleClicked(puzzleNearEmptyPuzzle.random())
+            onPuzzleClicked(puzzleNearEmptyPuzzle.random(), isUserClicked = false)
         }
     }
     fun stopShufflePuzzles() {

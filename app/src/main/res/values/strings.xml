@@ -2,4 +2,8 @@
     <string name="app_name">Puzzle_Quest</string>
     <string name="start_game_button_text">Start game</string>
     <string name="back_button_content_dis">Back</string>
+    <string name="win_title">Перемога!</string>
+    <string name="restart_question">Почати знову?</string>
+    <string name="confirm_button_title">Знову</string>
+    <string name="to_home_screen_button_title">На головну</string>
 </resources>

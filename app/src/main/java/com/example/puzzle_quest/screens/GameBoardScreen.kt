@@ -2,8 +2,6 @@ package com.example.puzzle_quest.screens
 
 import PuzzleCell
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.core.animateIntOffset
-import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -17,10 +15,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material3.Button
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -60,16 +59,16 @@ fun Puzzle(
     modifier: Modifier = Modifier,
     onPuzzleCellClicked : (PuzzleCell) -> Unit
 ) {
-    val update = updateTransition(targetState = puzzleCell.offsetState, label = "")
-    val animateOffset by update.animateIntOffset(label = "") {it}
+//    val update = updateTransition(targetState = puzzleCell.offsetState, label = "")
+//    val animateOffset by update.animateIntOffset(label = "") {it}
 
     Box(modifier = modifier
-        .offset { animateOffset }
+        .offset { puzzleCell.offsetState }
         .clickable {
             if (puzzleCell.number != 0) {
                 onPuzzleCellClicked(puzzleCell)
             }
-        },
+        }.background(Color.White),
         contentAlignment = Alignment.Center
     ) {
         if (puzzleCell.number != 0) {
@@ -88,7 +87,7 @@ fun GameBoardScreen(
     modifier: Modifier = Modifier) {
 
     var boardSize by remember { mutableStateOf(IntSize.Zero) }
-    val sizeOfPuzzleCell = getMinSide(boardSize = boardSize)
+    val sizeOfPuzzleCell = getPuzzleCellSide(boardSize = boardSize)
     val sizeOfCellInDp = with(LocalDensity.current) { sizeOfPuzzleCell.toDp()}
 
     Column (modifier = modifier
@@ -109,7 +108,8 @@ fun GameBoardScreen(
                     contentDescription = stringResource(id = R.string.back_button_content_dis)
                 )
             }
-            // Тут можна додати лічильник ходів, якщо потрібно
+            Text(text = puzzleQuestUiState.stepCount.toString())
+
         }
         Box(modifier = Modifier
             .fillMaxSize()
@@ -154,9 +154,28 @@ fun GameBoardScreen(
             viewModel.stopShufflePuzzles()
         }
     }
+    if (puzzleQuestUiState.isGameOver) {
+        AlertDialog(
+            onDismissRequest = {},
+            confirmButton = {
+                TextButton(onClick = { viewModel.startGame() }) {
+                    Text(text = stringResource(id = R.string.confirm_button_title))
+            }},
+            dismissButton = { TextButton(onClick = { onBackButtonPressed() }) {
+                Text(text = stringResource(id = R.string.to_home_screen_button_title))
+            }},
+            title = {
+            Text(
+                text = stringResource(id = R.string.win_title))
+            },
+            text = {
+                Text(text = stringResource(id = R.string.restart_question))
+            }
+        )
+    }
 }
 
-private fun getMinSide(boardSize : IntSize) : Int {
+private fun getPuzzleCellSide(boardSize : IntSize) : Int {
     val with = boardSize.width
     val height = boardSize.height
     return if (with < height)

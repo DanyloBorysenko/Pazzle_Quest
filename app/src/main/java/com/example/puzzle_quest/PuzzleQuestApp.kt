@@ -18,7 +18,7 @@ fun PuzzleQuestApp(viewModel: CustomViewModel = viewModel()) {
         true -> {
             HomeScreen(
                 onClick = {
-                    viewModel.changeScreen()
+                    viewModel.startGame()
                 }
             )
         }
@@ -28,9 +28,11 @@ fun PuzzleQuestApp(viewModel: CustomViewModel = viewModel()) {
                 puzzleQuestUiState = puzzleQuestUiState,
                 data = viewModel.data,
                 onBackButtonPressed = {
-                    viewModel.changeScreen()
+                    viewModel.resetGame()
                 },
-                onPuzzleCellClicked = { viewModel.onPuzzleClicked(it) }
+                onPuzzleCellClicked = {
+                    viewModel.onPuzzleClicked(clickedPuzzle = it, isUserClicked = true)
+                }
             )
         }
     }
