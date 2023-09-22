@@ -113,7 +113,7 @@ class CustomViewModel : ViewModel() {
     }
     suspend fun shufflePuzzles() {
         for (i in 0..3) {
-            delay(3)
+            delay(10)
             val puzzleNearEmptyPuzzle = findPuzzlesNearEmptyPuzzle()
             onPuzzleClicked(puzzleNearEmptyPuzzle.random(), isUserClicked = false)
         }

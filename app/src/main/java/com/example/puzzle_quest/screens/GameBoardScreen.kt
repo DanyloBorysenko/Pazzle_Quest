@@ -2,6 +2,8 @@ package com.example.puzzle_quest.screens
 
 import PuzzleCell
 import androidx.activity.compose.BackHandler
+import androidx.annotation.DrawableRes
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -29,9 +31,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
@@ -48,6 +52,7 @@ import kotlinx.coroutines.launch
 fun GameBoardScreenPreview() {
     Puzzle_QuestTheme {
         Puzzle(
+            selectedImage = R.drawable.dinnerware,
             puzzleCell = PuzzleCell(1,0,0, 50),
             onPuzzleCellClicked = {})
     }
@@ -55,6 +60,7 @@ fun GameBoardScreenPreview() {
 
 @Composable
 fun Puzzle(
+    @DrawableRes selectedImage: Int,
     puzzleCell: PuzzleCell,
     modifier: Modifier = Modifier,
     onPuzzleCellClicked : (PuzzleCell) -> Unit
@@ -68,11 +74,14 @@ fun Puzzle(
             if (puzzleCell.number != 0) {
                 onPuzzleCellClicked(puzzleCell)
             }
-        }.background(Color.White),
+        },
         contentAlignment = Alignment.Center
     ) {
         if (puzzleCell.number != 0) {
-            Text(text = puzzleCell.number.toString())
+            Image(
+                painter = painterResource(id = selectedImage),
+                contentDescription = null,
+                contentScale = ContentScale.Crop)
         }
     }
 }
@@ -120,6 +129,7 @@ fun GameBoardScreen(
             Layout(content = {
                 data.forEach {
                     Puzzle(
+                        selectedImage = puzzleQuestUiState.selectedImage,
                         modifier = Modifier
                             .size(sizeOfCellInDp)
                             .padding(1.dp),
