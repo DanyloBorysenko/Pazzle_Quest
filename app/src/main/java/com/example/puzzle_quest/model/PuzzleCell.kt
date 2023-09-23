@@ -1,3 +1,4 @@
+import androidx.annotation.DrawableRes
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -7,7 +8,8 @@ data class PuzzleCell(
     val number: Int,
     val row: Int,
     val column: Int,
-    var size: Int
+    var size: Int,
+    @DrawableRes val imageRes : Int?
 ) {
     var offsetState by mutableStateOf(IntOffset.Zero)
 

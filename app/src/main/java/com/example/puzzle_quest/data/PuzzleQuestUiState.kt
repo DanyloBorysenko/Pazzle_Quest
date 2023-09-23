@@ -8,5 +8,5 @@ data class PuzzleQuestUiState(
     val startShufflePuzzles : Boolean = true,
     val stepCount : Int = 0,
     val isGameOver : Boolean = false,
-    @DrawableRes val selectedImage : Int = R.drawable.dinnerware
+    @DrawableRes val selectedImage : Int = R.drawable.animal1
 )

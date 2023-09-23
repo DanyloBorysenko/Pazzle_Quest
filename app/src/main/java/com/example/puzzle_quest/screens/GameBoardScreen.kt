@@ -3,6 +3,7 @@ package com.example.puzzle_quest.screens
 import PuzzleCell
 import androidx.activity.compose.BackHandler
 import androidx.annotation.DrawableRes
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -10,11 +11,15 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
@@ -30,14 +35,24 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.drawscope.clipRect
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.example.puzzle_quest.R
@@ -52,15 +67,15 @@ import kotlinx.coroutines.launch
 fun GameBoardScreenPreview() {
     Puzzle_QuestTheme {
         Puzzle(
-            selectedImage = R.drawable.dinnerware,
-            puzzleCell = PuzzleCell(1,0,0, 50),
-            onPuzzleCellClicked = {})
+            puzzleCell = PuzzleCell(1,0,0, 50, R.drawable.img_1),
+            onPuzzleCellClicked = {},
+            sizeOfCellInDp = 60.dp)
     }
 }
 
 @Composable
 fun Puzzle(
-    @DrawableRes selectedImage: Int,
+    sizeOfCellInDp: Dp,
     puzzleCell: PuzzleCell,
     modifier: Modifier = Modifier,
     onPuzzleCellClicked : (PuzzleCell) -> Unit
@@ -69,17 +84,16 @@ fun Puzzle(
 //    val animateOffset by update.animateIntOffset(label = "") {it}
 
     Box(modifier = modifier
+        .size(sizeOfCellInDp)
         .offset { puzzleCell.offsetState }
         .clickable {
             if (puzzleCell.number != 0) {
                 onPuzzleCellClicked(puzzleCell)
             }
-        },
-        contentAlignment = Alignment.Center
-    ) {
-        if (puzzleCell.number != 0) {
+        }) {
+        if (puzzleCell.imageRes != null) {
             Image(
-                painter = painterResource(id = selectedImage),
+                painter = painterResource(id = puzzleCell.imageRes),
                 contentDescription = null,
                 contentScale = ContentScale.Crop)
         }
@@ -96,7 +110,7 @@ fun GameBoardScreen(
     modifier: Modifier = Modifier) {
 
     var boardSize by remember { mutableStateOf(IntSize.Zero) }
-    val sizeOfPuzzleCell = getPuzzleCellSide(boardSize = boardSize)
+    val sizeOfPuzzleCell : Int = getPuzzleCellSide(boardSize = boardSize)
     val sizeOfCellInDp = with(LocalDensity.current) { sizeOfPuzzleCell.toDp()}
 
     Column (modifier = modifier
@@ -129,10 +143,7 @@ fun GameBoardScreen(
             Layout(content = {
                 data.forEach {
                     Puzzle(
-                        selectedImage = puzzleQuestUiState.selectedImage,
-                        modifier = Modifier
-                            .size(sizeOfCellInDp)
-                            .padding(1.dp),
+                        sizeOfCellInDp = sizeOfCellInDp,
                         puzzleCell = it.apply {
                             size = sizeOfPuzzleCell
                         }) { puzzleCell -> onPuzzleCellClicked(puzzleCell) }
@@ -184,7 +195,6 @@ fun GameBoardScreen(
         )
     }
 }
-
 private fun getPuzzleCellSide(boardSize : IntSize) : Int {
     val with = boardSize.width
     val height = boardSize.height

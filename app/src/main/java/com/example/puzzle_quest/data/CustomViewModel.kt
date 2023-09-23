@@ -3,6 +3,7 @@ package com.example.puzzle_quest.data
 import PuzzleCell
 import androidx.compose.ui.unit.IntOffset
 import androidx.lifecycle.ViewModel
+import com.example.puzzle_quest.R
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -42,14 +43,16 @@ class CustomViewModel : ViewModel() {
                 number = i,
                 column = (i - 1) % 4,
                 row = (i - 1) / 4,
-                size = 0))
+                size = 0,
+                imageRes = getImagePart(number = i)
+            ))
         }
         _data.add(
             PuzzleCell(
             number = 0,
             column = 3,
             row = 3,
-            size = 0
+            size = 0, imageRes = null
             )
         )
     }
@@ -112,7 +115,7 @@ class CustomViewModel : ViewModel() {
         }
     }
     suspend fun shufflePuzzles() {
-        for (i in 0..3) {
+        for (i in 0..5) {
             delay(10)
             val puzzleNearEmptyPuzzle = findPuzzlesNearEmptyPuzzle()
             onPuzzleClicked(puzzleNearEmptyPuzzle.random(), isUserClicked = false)
@@ -121,6 +124,25 @@ class CustomViewModel : ViewModel() {
     fun stopShufflePuzzles() {
         _uiState.update { currentState ->
             currentState.copy(startShufflePuzzles = false)
+        }
+    }
+    private fun getImagePart(number: Int): Int {
+        return when (number) {
+            1 -> R.drawable.img_1
+            2 -> R.drawable.img_2
+            3 -> R.drawable.img_3
+            4 -> R.drawable.img_4
+            5 -> R.drawable.img_5
+            6 -> R.drawable.img_6
+            7 -> R.drawable.img_7
+            8 -> R.drawable.img_8
+            9 -> R.drawable.img_9
+            10 -> R.drawable.img_10
+            11 -> R.drawable.img_11
+            12 -> R.drawable.img_12
+            13 -> R.drawable.img_13
+            14 -> R.drawable.img_14
+            else -> R.drawable.img_15
         }
     }
 }
