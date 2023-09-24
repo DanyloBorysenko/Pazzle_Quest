@@ -1,7 +1,7 @@
 package com.example.puzzle_quest.screens
 
 import PuzzleCell
-import android.telephony.CellInfo
+import android.content.res.Configuration
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedContentScope
@@ -9,11 +9,8 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntOffset
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.repeatable
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
@@ -32,14 +29,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -56,15 +51,12 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.Layout
-import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.ExperimentalTextApi
-import androidx.compose.ui.text.style.TextMotion
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.puzzle_quest.R
@@ -137,10 +129,11 @@ fun GameBoardScreen(
     onPuzzleCellClicked: (PuzzleCell) -> Unit,
     modifier: Modifier = Modifier) {
 
+    val configuration = LocalConfiguration.current
+    val smallestSide = getSmallestSide(configuration)
+    val sizeOfPuzzle : Int = with(LocalDensity.current) {smallestSide.roundToPx()} / 4
+    val sizeOfCellInDp = with(LocalDensity.current) { sizeOfPuzzle.toDp()}
 
-    var boardSize by remember { mutableStateOf(IntSize.Zero) }
-    val sizeOfPuzzleCell : Int = getPuzzleCellSide(boardSize = boardSize)
-    val sizeOfCellInDp = with(LocalDensity.current) { sizeOfPuzzleCell.toDp()}
 
     var puzzleToShake by remember {
         mutableStateOf<PuzzleCell?>(null)
@@ -153,13 +146,14 @@ fun GameBoardScreen(
     }
 
     Column (modifier = modifier
-        .fillMaxSize()
-        .background(color = Color.Gray)
+        .fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Row(
-            modifier = Modifier
+            modifier = Modifier.weight(0.2F)
                 .fillMaxWidth()
-                .padding(8.dp), verticalAlignment = Alignment.CenterVertically,
+                .padding(16.dp), verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             IconButton(
@@ -193,18 +187,14 @@ fun GameBoardScreen(
 //                text = puzzleQuestUiState.stepCount.toString())
 
         }
-        Box(modifier = Modifier
-            .fillMaxSize()
-            .onGloballyPositioned {
-                boardSize = it.size
-            }
-            .background(Color.LightGray)) {
+        Box(modifier = Modifier.weight(0.8F)
+            ) {
             Layout(content = {
                 data.forEach {
                     Puzzle(
                         sizeOfCellInDp = sizeOfCellInDp,
                         puzzleCell = it.apply {
-                            size = sizeOfPuzzleCell
+                            size = sizeOfPuzzle
                         }, modifier = Modifier.shake(
                             enabled = it == puzzleToShake,
                             correctionX = it.offsetState.x.toFloat() / it.size,
@@ -221,7 +211,10 @@ fun GameBoardScreen(
                 val placeables = measurables.map {
                     it.measure(constraints)
                 }
-                layout(width = boardSize.width, height = boardSize.height) {
+                layout(
+                    width = smallestSide.roundToPx(),
+                    height = smallestSide.roundToPx()
+                ) {
                     var x: Int
                     var y: Int
                     placeables.forEachIndexed { index, placeable ->
@@ -293,10 +286,8 @@ fun Modifier.shake(
         )
     }
 )
-private fun getPuzzleCellSide(boardSize : IntSize) : Int {
-    val with = boardSize.width
-    val height = boardSize.height
-    return if (with < height)
-        with / 4
-    else height / 4
+private fun getSmallestSide(configuration: Configuration) : Dp {
+    val width = configuration.screenWidthDp.dp - 80.dp
+    val height = configuration.screenHeightDp.dp - 80.dp
+    return if (width < height) width else height
 }
