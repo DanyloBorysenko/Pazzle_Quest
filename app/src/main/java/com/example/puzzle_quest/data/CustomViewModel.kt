@@ -1,14 +1,20 @@
 package com.example.puzzle_quest.data
 
 import PuzzleCell
+import android.telephony.CellInfo
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.unit.IntOffset
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.puzzle_quest.R
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import java.lang.RuntimeException
 import kotlin.math.abs
 
@@ -16,6 +22,9 @@ class CustomViewModel : ViewModel() {
 
     private val _uiState = MutableStateFlow(PuzzleQuestUiState())
     val uiState : StateFlow<PuzzleQuestUiState> = _uiState.asStateFlow()
+
+    private val _shakeFlow = MutableSharedFlow<PuzzleCell>()
+    val shakeFlow = _shakeFlow.asSharedFlow()
 
     private val _data = mutableListOf<PuzzleCell>()
     val data : List<PuzzleCell> = _data
@@ -81,9 +90,11 @@ class CustomViewModel : ViewModel() {
                 emptyPuzzle.offsetState += IntOffset(x = 0, y = size)
             }
         } else {
-
+            viewModelScope.launch {
+                _shakeFlow.emit(clickedPuzzle)
+            }
         }
-        if (isUserClicked) {
+        if (isUserClicked && neighbors.contains(clickedPuzzle)) {
             increaseStepCount()
             checkResult()
         }
@@ -115,7 +126,7 @@ class CustomViewModel : ViewModel() {
         }
     }
     suspend fun shufflePuzzles() {
-        for (i in 0..5) {
+        for (i in 0..100) {
             delay(10)
             val puzzleNearEmptyPuzzle = findPuzzlesNearEmptyPuzzle()
             onPuzzleClicked(puzzleNearEmptyPuzzle.random(), isUserClicked = false)

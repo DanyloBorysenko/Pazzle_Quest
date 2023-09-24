@@ -7,4 +7,5 @@
     <string name="confirm_button_title">Знову</string>
     <string name="to_home_screen_button_title">На головну</string>
     <string name="image_id"></string>
+    <string name="step_count_text">Кількість кроків</string>
 </resources>

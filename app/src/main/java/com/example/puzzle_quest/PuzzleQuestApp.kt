@@ -32,7 +32,8 @@ fun PuzzleQuestApp(viewModel: CustomViewModel = viewModel()) {
                 },
                 onPuzzleCellClicked = {
                     viewModel.onPuzzleClicked(clickedPuzzle = it, isUserClicked = true)
-                }
+                },
+                shakeState = viewModel.shakeFlow
             )
         }
     }
