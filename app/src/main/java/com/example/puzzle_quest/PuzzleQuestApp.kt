@@ -19,7 +19,7 @@ fun PuzzleQuestApp(viewModel: CustomViewModel = viewModel()) {
             HomeScreen(
                 onClick = {
                     viewModel.startGame()
-                }
+                }, onSelectedImageClick = {viewModel.updateSelectedImage(it)}
             )
         }
         else -> {

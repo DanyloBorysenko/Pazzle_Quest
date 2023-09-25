@@ -1,12 +1,10 @@
 package com.example.puzzle_quest.data
 
 import PuzzleCell
-import android.telephony.CellInfo
-import androidx.compose.runtime.mutableStateOf
+import android.graphics.BitmapFactory
 import androidx.compose.ui.unit.IntOffset
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.puzzle_quest.R
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,12 +13,13 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.io.InputStream
 import java.lang.RuntimeException
 import kotlin.math.abs
 
 class CustomViewModel : ViewModel() {
 
-    private val _uiState = MutableStateFlow(PuzzleQuestUiState())
+    private val _uiState = MutableStateFlow(PuzzleQuestUiState(bitmap = null))
     val uiState : StateFlow<PuzzleQuestUiState> = _uiState.asStateFlow()
 
     private val _shakeFlow = MutableSharedFlow<PuzzleCell>()
@@ -31,7 +30,7 @@ class CustomViewModel : ViewModel() {
 
     fun resetGame() {
         _data.clear()
-        _uiState.value = PuzzleQuestUiState()
+        _uiState.value = PuzzleQuestUiState(bitmap = null)
     }
 
     fun startGame() {
@@ -52,8 +51,7 @@ class CustomViewModel : ViewModel() {
                 number = i,
                 column = (i - 1) % 4,
                 row = (i - 1) / 4,
-                size = 0,
-                imageRes = getImagePart(number = i)
+                size = 0
             ))
         }
         _data.add(
@@ -61,7 +59,7 @@ class CustomViewModel : ViewModel() {
             number = 0,
             column = 3,
             row = 3,
-            size = 0, imageRes = null
+            size = 0
             )
         )
     }
@@ -126,8 +124,8 @@ class CustomViewModel : ViewModel() {
         }
     }
     suspend fun shufflePuzzles() {
-        for (i in 0..100) {
-            delay(10)
+        for (i in 0..50) {
+            delay(5)
             val puzzleNearEmptyPuzzle = findPuzzlesNearEmptyPuzzle()
             onPuzzleClicked(puzzleNearEmptyPuzzle.random(), isUserClicked = false)
         }
@@ -137,23 +135,10 @@ class CustomViewModel : ViewModel() {
             currentState.copy(startShufflePuzzles = false)
         }
     }
-    private fun getImagePart(number: Int): Int {
-        return when (number) {
-            1 -> R.drawable.img_1
-            2 -> R.drawable.img_2
-            3 -> R.drawable.img_3
-            4 -> R.drawable.img_4
-            5 -> R.drawable.img_5
-            6 -> R.drawable.img_6
-            7 -> R.drawable.img_7
-            8 -> R.drawable.img_8
-            9 -> R.drawable.img_9
-            10 -> R.drawable.img_10
-            11 -> R.drawable.img_11
-            12 -> R.drawable.img_12
-            13 -> R.drawable.img_13
-            14 -> R.drawable.img_14
-            else -> R.drawable.img_15
+    fun updateSelectedImage(inputStream: InputStream) {
+        val bitMap = BitmapFactory.decodeStream(inputStream)
+        _uiState.update { currentState ->
+            currentState.copy(bitmap = bitMap)
         }
     }
 }

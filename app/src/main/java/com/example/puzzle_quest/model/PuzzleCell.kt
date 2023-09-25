@@ -9,7 +9,6 @@ data class PuzzleCell(
     val row: Int,
     val column: Int,
     var size: Int,
-    @DrawableRes val imageRes : Int?
 ) {
     var offsetState by mutableStateOf(IntOffset.Zero)
 
