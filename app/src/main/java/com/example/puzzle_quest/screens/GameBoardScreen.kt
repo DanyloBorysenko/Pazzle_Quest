@@ -51,7 +51,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -63,7 +62,6 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -74,7 +72,6 @@ import com.example.puzzle_quest.R
 import com.example.puzzle_quest.data.CustomViewModel
 import com.example.puzzle_quest.data.PuzzleQuestUiState
 import com.example.puzzle_quest.ui.theme.Puzzle_QuestTheme
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -253,6 +250,7 @@ fun GameBoardScreen(
     }
 }
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun TopPartOfTheScreen(
     onBackButtonPressed: () -> Unit,

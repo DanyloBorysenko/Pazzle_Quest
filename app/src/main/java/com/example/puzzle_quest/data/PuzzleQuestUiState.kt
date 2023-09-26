@@ -11,4 +11,6 @@ data class PuzzleQuestUiState(
     val isGameOver : Boolean = false,
     @DrawableRes val selectedImage : Int = R.drawable.animal1,
     val bitmap: Bitmap?
-)
+) {
+
+}
