@@ -8,4 +8,5 @@
     <string name="to_home_screen_button_title">На головну</string>
     <string name="image_id"></string>
     <string name="step_count_text">Кількість кроків</string>
+    <string name="nextImage">Обрати наступне фото</string>
 </resources>

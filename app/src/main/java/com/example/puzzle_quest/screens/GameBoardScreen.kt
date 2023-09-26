@@ -18,10 +18,14 @@ import androidx.compose.animation.core.animateIntOffset
 import androidx.compose.animation.core.repeatable
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.with
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,6 +46,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -69,6 +74,7 @@ import com.example.puzzle_quest.R
 import com.example.puzzle_quest.data.CustomViewModel
 import com.example.puzzle_quest.data.PuzzleQuestUiState
 import com.example.puzzle_quest.ui.theme.Puzzle_QuestTheme
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -247,7 +253,6 @@ fun GameBoardScreen(
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun TopPartOfTheScreen(
     onBackButtonPressed: () -> Unit,
@@ -271,22 +276,19 @@ fun TopPartOfTheScreen(
         Spacer(modifier = Modifier.weight(1f))
         Text(
             text = stringResource(id = R.string.step_count_text),
-            style = MaterialTheme.typography.headlineSmall,
-            color = Color.Black)
+            style = MaterialTheme.typography.headlineSmall)
         Spacer(modifier = Modifier.size(10.dp))
         AnimatedContent(
             targetState = puzzleQuestUiState.stepCount,
             transitionSpec = {
-                slideIntoContainer(
-                    towards = AnimatedContentScope.SlideDirection.Up,
-                    animationSpec = tween(durationMillis = 500)
-                ) with ExitTransition.None
-            }
+                fadeIn() + slideInVertically(animationSpec = tween(400),
+                    initialOffsetY = { fullHeight -> fullHeight }) with
+                        fadeOut(animationSpec = tween(200))
+            }, label = "scoreAnimation"
         ) { targetCount ->
             Text(
                 text = "$targetCount",
-                style = MaterialTheme.typography.headlineMedium,
-                color = Color.Black
+                style = MaterialTheme.typography.headlineMedium
             )
         }
 

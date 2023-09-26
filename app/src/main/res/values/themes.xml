@@ -2,4 +2,5 @@
 <resources>
 
     <style name="Theme.Puzzle_Quest" parent="android:Theme.Material.Light.NoActionBar" />
+
 </resources>
