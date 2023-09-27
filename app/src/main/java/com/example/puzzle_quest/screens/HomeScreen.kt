@@ -3,7 +3,9 @@ package com.example.puzzle_quest.screens
 import android.annotation.SuppressLint
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.waitForUpOrCancellation
@@ -32,6 +34,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -39,10 +42,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
@@ -52,6 +57,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.puzzle_quest.R
+import com.example.puzzle_quest.data.PuzzleQuestUiState
 import com.example.puzzle_quest.ui.theme.Puzzle_QuestTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -66,7 +72,7 @@ fun HomeScreenPreview() {
 
 @SuppressLint("ResourceType")
 @Composable
-fun HomeScreen(onStartButtonClicked: () -> Unit, onSelectedImageClick : (InputStream) -> Unit) {
+fun HomeScreen(puzzleQuestUiState: PuzzleQuestUiState, onStartButtonClicked: () -> Unit, onSelectedImageClick : (InputStream, Int) -> Unit) {
     val imageResources = listOf(R.drawable.animal1, R.drawable.animal2, R.drawable.animal3)
     var currentIndex by remember {
         mutableStateOf(0)
@@ -97,6 +103,7 @@ fun HomeScreen(onStartButtonClicked: () -> Unit, onSelectedImageClick : (InputSt
                 items(imageResources) {
                     ImageCard(
                         imageRes = it,
+                        isSelected = puzzleQuestUiState.selectedImage == it,
                         onClick = onSelectedImageClick,
                         modifier = Modifier
                             .padding(5.dp))
@@ -115,8 +122,27 @@ fun HomeScreen(onStartButtonClicked: () -> Unit, onSelectedImageClick : (InputSt
             currentIndex = it
         }
         Spacer(modifier = Modifier.size(16.dp))
-        Button(onClick = onStartButtonClicked, modifier = Modifier.weight(0.3F).wrapContentSize().bounceClick()) {
-            Text(text = stringResource(id = R.string.start_game_button_text))
+        Box(modifier = Modifier
+            .weight(0.3F)
+            .align(Alignment.CenterHorizontally)) {
+            if (puzzleQuestUiState.selectedImage != null) {
+                Button(
+                    onClick = onStartButtonClicked,
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .bounceClick()) {
+                    Text(text = stringResource(id = R.string.start_game_button_text))
+            }
+        } else {
+            Text(text = stringResource(id = R.string.chooseImageText), style = MaterialTheme.typography.headlineMedium)
+            }
+//        Button(
+//            onClick = onStartButtonClicked,
+//            modifier = Modifier
+//                .weight(0.3F)
+//                .wrapContentSize()
+//                .bounceClick()) {
+//            Text(text = stringResource(id = R.string.start_game_button_text))
         }
     }
 }
@@ -134,13 +160,15 @@ fun Background() {
 
 @SuppressLint("ResourceType")
 @Composable
-fun ImageCard(@DrawableRes imageRes: Int, onClick: (InputStream) -> Unit, modifier: Modifier = Modifier) {
+fun ImageCard(@DrawableRes imageRes: Int, isSelected: Boolean, onClick: (InputStream, Int) -> Unit, modifier: Modifier = Modifier) {
     val inputStream : InputStream = LocalContext.current.resources.openRawResource(imageRes)
     Card (
-        modifier = modifier.clickable { onClick(inputStream) },
+        modifier = modifier.clickable { onClick(inputStream, imageRes) },
         elevation = CardDefaults.cardElevation(5.dp))
     {
-        Box(modifier = Modifier.fillMaxHeight()) {
+        Box(modifier = Modifier
+            .fillMaxHeight()
+            .border(BorderStroke(width = if (isSelected) 5.dp else 0.dp, color = Color.White))) {
             Image(
                 painter = painterResource(id = imageRes),
                 contentDescription = null,

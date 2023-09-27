@@ -135,10 +135,10 @@ class CustomViewModel : ViewModel() {
             currentState.copy(startShufflePuzzles = false)
         }
     }
-    fun updateSelectedImage(inputStream: InputStream) {
+    fun updateSelectedImage(inputStream: InputStream, imageRes: Int) {
         val bitMap = BitmapFactory.decodeStream(inputStream)
         _uiState.update { currentState ->
-            currentState.copy(bitmap = bitMap)
+            currentState.copy(bitmap = bitMap, selectedImage = imageRes)
         }
     }
 }

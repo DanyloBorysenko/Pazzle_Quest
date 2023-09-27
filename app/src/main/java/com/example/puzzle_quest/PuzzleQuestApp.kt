@@ -17,9 +17,11 @@ fun PuzzleQuestApp(viewModel: CustomViewModel = viewModel()) {
     when (puzzleQuestUiState.isHomeScreenShown) {
         true -> {
             HomeScreen(
+                puzzleQuestUiState = puzzleQuestUiState,
                 onStartButtonClicked = {
                     viewModel.startGame() },
-                onSelectedImageClick = {viewModel.updateSelectedImage(it)}
+                onSelectedImageClick = {inputStream, imageRes ->
+                    viewModel.updateSelectedImage(inputStream, imageRes)}
             )
         }
         else -> {
