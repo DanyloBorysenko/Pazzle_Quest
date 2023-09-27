@@ -1,10 +1,13 @@
 package com.example.puzzle_quest.screens
 
 import android.annotation.SuppressLint
-import android.widget.Space
 import androidx.annotation.DrawableRes
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.waitForUpOrCancellation
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,10 +39,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -47,11 +52,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.puzzle_quest.R
-import com.example.puzzle_quest.data.CustomViewModel
-import com.example.puzzle_quest.data.PuzzleQuestUiState
 import com.example.puzzle_quest.ui.theme.Puzzle_QuestTheme
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import java.io.InputStream
 
@@ -64,7 +66,7 @@ fun HomeScreenPreview() {
 
 @SuppressLint("ResourceType")
 @Composable
-fun HomeScreen(onImageClick: () -> Unit, onSelectedImageClick : (InputStream) -> Unit) {
+fun HomeScreen(onStartButtonClicked: () -> Unit, onSelectedImageClick : (InputStream) -> Unit) {
     val imageResources = listOf(R.drawable.animal1, R.drawable.animal2, R.drawable.animal3)
     var currentIndex by remember {
         mutableStateOf(0)
@@ -113,11 +115,7 @@ fun HomeScreen(onImageClick: () -> Unit, onSelectedImageClick : (InputStream) ->
             currentIndex = it
         }
         Spacer(modifier = Modifier.size(16.dp))
-        Button(
-            onClick = onImageClick,
-            modifier = Modifier
-                .weight(0.3f)
-                .wrapContentSize()) {
+        Button(onClick = onStartButtonClicked, modifier = Modifier.weight(0.3F).wrapContentSize().bounceClick()) {
             Text(text = stringResource(id = R.string.start_game_button_text))
         }
     }
@@ -151,7 +149,14 @@ fun ImageCard(@DrawableRes imageRes: Int, onClick: (InputStream) -> Unit, modifi
     }
 }
 @Composable
-fun IconButtons(currentIndex: Int, allImagesVisible : Boolean, coroutineScope: CoroutineScope, listState: LazyListState, imageResourcesCount: Int, modifier: Modifier, changeIndex : (Int) -> Unit) {
+fun IconButtons(
+    currentIndex: Int,
+    allImagesVisible : Boolean,
+    coroutineScope: CoroutineScope,
+    listState: LazyListState,
+    imageResourcesCount: Int,
+    modifier: Modifier,
+    changeIndex : (Int) -> Unit) {
     Row (
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Center,
@@ -164,10 +169,11 @@ fun IconButtons(currentIndex: Int, allImagesVisible : Boolean, coroutineScope: C
                         coroutineScope.launch { listState.scrollToItem(index = nextIndex)}
                         changeIndex(nextIndex)
                     }
-                }) {
+                },modifier = Modifier.bounceClick()) {
                 Icon(
                     imageVector = Icons.Filled.ArrowBack,
-                    contentDescription = stringResource(id = R.string.previousImage))
+                    contentDescription = stringResource(id = R.string.previousImage),
+                    )
             }
         }
         Spacer(modifier = Modifier.weight(1F))
@@ -179,13 +185,41 @@ fun IconButtons(currentIndex: Int, allImagesVisible : Boolean, coroutineScope: C
                         coroutineScope.launch { listState.scrollToItem(index = nextIndex) }
                         changeIndex(nextIndex)
                     }
-                }
+                },modifier = Modifier.bounceClick()
             )
             {
                 Icon(
                     imageVector = Icons.Filled.ArrowForward,
-                    contentDescription = stringResource(id = R.string.nextImage))
+                    contentDescription = stringResource(id = R.string.nextImage),
+                    )
             }
         }
     }
+}
+enum class ItemState { Pressed, Idle }
+fun Modifier.bounceClick() = composed {
+    var buttonState by remember { mutableStateOf(ItemState.Idle) }
+    val scale by animateFloatAsState(if (buttonState == ItemState.Pressed) 0.60f else 1f)
+
+    this
+        .graphicsLayer {
+            scaleX = scale
+            scaleY = scale
+        }
+        .clickable(
+            interactionSource = remember { MutableInteractionSource() },
+            indication = null,
+            onClick = { }
+        )
+        .pointerInput(buttonState) {
+            awaitPointerEventScope {
+                buttonState = if (buttonState == ItemState.Pressed) {
+                    waitForUpOrCancellation()
+                    ItemState.Idle
+                } else {
+                    awaitFirstDown(false)
+                    ItemState.Pressed
+                }
+            }
+        }
 }
