@@ -20,13 +20,13 @@ import kotlin.math.abs
 class CustomViewModel : ViewModel() {
 
     private val _uiState = MutableStateFlow(PuzzleQuestUiState(bitmap = null))
-    val uiState : StateFlow<PuzzleQuestUiState> = _uiState.asStateFlow()
+    val uiState: StateFlow<PuzzleQuestUiState> = _uiState.asStateFlow()
 
     private val _shakeFlow = MutableSharedFlow<PuzzleCell>()
     val shakeFlow = _shakeFlow.asSharedFlow()
 
     private val _data = mutableListOf<PuzzleCell>()
-    val data : List<PuzzleCell> = _data
+    val data: List<PuzzleCell> = _data
 
     fun resetGame() {
         _data.clear()
@@ -41,32 +41,36 @@ class CustomViewModel : ViewModel() {
                 isHomeScreenShown = false,
                 startShufflePuzzles = true,
                 stepCount = 0,
-                isGameOver = false)
+                isGameOver = false
+            )
         }
     }
 
-    private fun createPuzzles(){
+    private fun createPuzzles() {
         for (i in 1..15) {
-            _data.add(PuzzleCell(
-                number = i,
-                column = (i - 1) % 4,
-                row = (i - 1) / 4,
-                size = 0
-            ))
+            _data.add(
+                PuzzleCell(
+                    number = i,
+                    column = (i - 1) % 4,
+                    row = (i - 1) / 4,
+                    size = 0
+                )
+            )
         }
         _data.add(
             PuzzleCell(
-            number = 0,
-            column = 3,
-            row = 3,
-            size = 0
+                number = 0,
+                column = 3,
+                row = 3,
+                size = 0
             )
         )
     }
 
     fun onPuzzleClicked(clickedPuzzle: PuzzleCell, isUserClicked: Boolean) {
         val size = clickedPuzzle.size
-        val emptyPuzzle = _data.find { it.number == 0 } ?: throw RuntimeException("Empty puzzle doesn't exist")
+        val emptyPuzzle =
+            _data.find { it.number == 0 } ?: throw RuntimeException("Empty puzzle doesn't exist")
         if (clickedPuzzle == emptyPuzzle) return
         val neighbors = findPuzzlesNearEmptyPuzzle()
         if (clickedPuzzle.actualRow == emptyPuzzle.actualRow && neighbors.contains(clickedPuzzle)) {
@@ -78,7 +82,10 @@ class CustomViewModel : ViewModel() {
                 clickedPuzzle.offsetState -= IntOffset(x = size, y = 0)
                 emptyPuzzle.offsetState += IntOffset(x = size, y = 0)
             }
-        } else if (clickedPuzzle.actualColumn == emptyPuzzle.actualColumn && neighbors.contains(clickedPuzzle)) {
+        } else if (clickedPuzzle.actualColumn == emptyPuzzle.actualColumn && neighbors.contains(
+                clickedPuzzle
+            )
+        ) {
             val isClickedPuzzleBelow = clickedPuzzle.actualRow < emptyPuzzle.actualRow
             if (isClickedPuzzleBelow) {
                 clickedPuzzle.offsetState += IntOffset(x = 0, y = size)
@@ -115,14 +122,15 @@ class CustomViewModel : ViewModel() {
         }
     }
 
-    private fun findPuzzlesNearEmptyPuzzle() : List<PuzzleCell> {
+    private fun findPuzzlesNearEmptyPuzzle(): List<PuzzleCell> {
         val emptyPuzzle = data.find { it.number == 0 }!!
         return data.filter {
             it != emptyPuzzle
                     && (it.actualColumn == emptyPuzzle.actualColumn && abs(it.actualRow - emptyPuzzle.actualRow) == 1
-                    || it.actualRow == emptyPuzzle.actualRow && abs(it.actualColumn - emptyPuzzle.actualColumn) ==1)
+                    || it.actualRow == emptyPuzzle.actualRow && abs(it.actualColumn - emptyPuzzle.actualColumn) == 1)
         }
     }
+
     suspend fun shufflePuzzles() {
         for (i in 0..100) {
             delay(5)
@@ -130,11 +138,13 @@ class CustomViewModel : ViewModel() {
             onPuzzleClicked(puzzleNearEmptyPuzzle.random(), isUserClicked = false)
         }
     }
+
     fun stopShufflePuzzles() {
         _uiState.update { currentState ->
             currentState.copy(startShufflePuzzles = false)
         }
     }
+
     fun updateSelectedImage(inputStream: InputStream, imageRes: Int) {
         val bitMap = BitmapFactory.decodeStream(inputStream)
         _uiState.update { currentState ->

@@ -11,4 +11,5 @@
     <string name="nextImage">Обрати наступне зображення</string>
     <string name="previousImage">Обрати попереднє зображення</string>
     <string name="chooseImageText">Оберіть зображення</string>
+    <string name="info">Інформація</string>
 </resources>

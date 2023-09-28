@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "44118614671",
+    "project_id": "puzzle-quest-5589d",
+    "storage_bucket": "puzzle-quest-5589d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:44118614671:android:f2cbc185fe0e2248c7c6fa",
+        "android_client_info": {
+          "package_name": "com.example.puzzle_quest"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAAvtGbHnUzf7gDQBiXW1iOI8DrQjSoyYY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

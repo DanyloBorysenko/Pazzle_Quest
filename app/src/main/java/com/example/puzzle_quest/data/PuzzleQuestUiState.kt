@@ -2,7 +2,6 @@ package com.example.puzzle_quest.data
 
 import android.graphics.Bitmap
 import androidx.annotation.DrawableRes
-import com.example.puzzle_quest.R
 
 data class PuzzleQuestUiState(
     val isHomeScreenShown: Boolean = true,
@@ -11,6 +10,4 @@ data class PuzzleQuestUiState(
     val isGameOver : Boolean = false,
     @DrawableRes val selectedImage : Int? = null,
     val bitmap: Bitmap?
-) {
-
-}
+)

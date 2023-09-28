@@ -11,19 +11,26 @@ import com.example.puzzle_quest.screens.HomeScreen
 
 @SuppressLint("UnrememberedMutableState")
 @Composable
-fun PuzzleQuestApp(viewModel: CustomViewModel = viewModel()) {
+fun PuzzleQuestApp(
+    viewModel: CustomViewModel = viewModel(),
+    urlForInfoButton: String
+) {
     val puzzleQuestUiState by viewModel.uiState.collectAsState()
 
     when (puzzleQuestUiState.isHomeScreenShown) {
         true -> {
             HomeScreen(
                 puzzleQuestUiState = puzzleQuestUiState,
+                urlForInfoButton = urlForInfoButton,
                 onStartButtonClicked = {
-                    viewModel.startGame() },
-                onSelectedImageClick = {inputStream, imageRes ->
-                    viewModel.updateSelectedImage(inputStream, imageRes)}
+                    viewModel.startGame()
+                },
+                onSelectedImageClick = { inputStream, imageRes ->
+                    viewModel.updateSelectedImage(inputStream, imageRes)
+                }
             )
         }
+
         else -> {
             GameBoardScreen(
                 viewModel = viewModel,
