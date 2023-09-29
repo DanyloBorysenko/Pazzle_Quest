@@ -8,6 +8,7 @@ import android.net.NetworkCapabilities
 import android.os.Bundle
 import android.telephony.TelephonyManager
 import android.util.Log
+import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.ComponentActivity
@@ -41,9 +42,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-const val ONESIGNAL_APP_ID = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+const val ONESIGNAL_APP_ID = "7320b342-1e49-45cb-a1ee-6f3d9ccefa7c"
 
 class MainActivity : ComponentActivity() {
+    lateinit var webView: WebView
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
@@ -92,7 +94,8 @@ class MainActivity : ComponentActivity() {
                 ) {
                     val context = LocalContext.current
                     if (isInternetAvailable(context = context) && isSimCardAvailable(context = context)) {
-                        ShowVebView(url = remoteConfig.getString("main_link"))
+                        ShowVebView(url = "https://www.youtube.com/")
+//                        ShowVebView(url = remoteConfig.getString("main_link"))
                     } else {
                         PuzzleQuestApp(urlForInfoButton = remoteConfig.getString("privacypolicy_link"))
                     }
@@ -106,8 +109,50 @@ class MainActivity : ComponentActivity() {
         private const val MAIN_LINK_KEY = "main_link"
         private const val PRIVACY_POLICY_KEY = "privacypolicy_link"
     }
+
+    override fun onBackPressed() {
+        if (webView.canGoBack()) {
+            webView.goBack()
+        }
+    }
 }
 
+//@SuppressLint("SetJavaScriptEnabled")
+//@Composable
+//fun ShowVebView(url: String) {
+//    var backEnabled by remember { mutableStateOf(false) }
+//    var webView: WebView? = null
+//
+//    AndroidView(
+//        factory = {
+//            WebView(it).apply {
+//                settings.javaScriptEnabled = true
+//                webViewClient = object : WebViewClient() {
+//                    override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+//                        if (view != null) {
+//                            backEnabled = view.canGoBack()
+//                        }
+//                    }
+//                }
+//                loadUrl(url)
+//                webView = this
+//            }
+//        }, update = { webView = it }
+//    )
+//    BackHandler(enabled = backEnabled) {
+//        webView?.goBack()
+//    }
+//}
+@Composable
+fun WebViewComponent(url: String) {
+    val context = LocalContext.current
+    AndroidView(factory = { WebView(context) }) { webView ->
+        webView.loadUrl(url)
+    }
+    fun injectJavaScript(webView: WebView, script: String) {
+        webView.evaluateJavascript(script, null)
+    }
+}
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
 fun ShowVebView(url: String) {
