@@ -6,12 +6,12 @@ plugins {
 
 android {
     namespace = "com.example.puzzle_quest"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.example.puzzle_quest"
-        minSdk = 24
-        targetSdk = 33
+        minSdk = 27
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
 
@@ -65,6 +65,7 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:32.3.1"))
     implementation("com.google.firebase:firebase-config-ktx")
     implementation("com.onesignal:OneSignal:5.0.0")
+    implementation("com.google.accompanist:accompanist-webview:0.33.1-alpha")
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
