@@ -1,6 +1,7 @@
 package com.example.puzzle_quest.screens
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
@@ -55,6 +56,9 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import com.example.puzzle_quest.R
 import com.example.puzzle_quest.data.PuzzleQuestUiState
 import kotlinx.coroutines.CoroutineScope
@@ -68,14 +72,13 @@ enum class ItemState { Pressed, Idle }
 fun HomeScreen(
     puzzleQuestUiState: PuzzleQuestUiState,
     onStartButtonClicked: () -> Unit,
-    urlForInfoButton: String,
     onSelectedImageClick: (InputStream, Int) -> Unit
 ) {
     val imageResources = listOf(R.drawable.animal1, R.drawable.animal2, R.drawable.animal3)
     var currentIndex by remember {
         mutableStateOf(0)
     }
-    var listState = rememberLazyListState()
+    val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
     var allImagesVisible by remember {
         mutableStateOf(false)
@@ -100,7 +103,9 @@ fun HomeScreen(
                 .padding(8.dp),
             horizontalArrangement = Arrangement.End
         ) {
-            OpenInBrowser(url = urlForInfoButton)
+            if (puzzleQuestUiState.infoLink != null) {
+                OpenInBrowser(url = puzzleQuestUiState.infoLink)
+            }
         }
         Row(
             modifier = Modifier

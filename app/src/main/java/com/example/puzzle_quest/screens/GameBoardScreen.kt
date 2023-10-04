@@ -1,6 +1,9 @@
 package com.example.puzzle_quest.screens
 
 import PuzzleCell
+import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import android.content.res.Configuration
 import android.graphics.Bitmap
 import androidx.activity.compose.BackHandler
@@ -40,6 +43,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -55,6 +59,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -69,51 +74,6 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 @Composable
-fun Puzzle(
-    bitmap: Bitmap,
-    puzzleCell: PuzzleCell,
-    modifier: Modifier,
-    onPuzzleCellClicked : (PuzzleCell) -> Unit,
-) {
-    val update = updateTransition(targetState = puzzleCell.offsetState, label = "")
-    val animateOffset by update.animateIntOffset(label = "") {it}
-
-    val width = bitmap.width / 4
-    val height = bitmap.height / 4
-    val piece = remember (puzzleCell) {
-        Bitmap.createBitmap(bitmap, puzzleCell.column * width, puzzleCell.row * height, width, height)
-    }
-
-    Box(modifier = modifier
-        .offset {
-            animateOffset
-        }
-        .clickable(
-            interactionSource = remember {
-                MutableInteractionSource()
-            },
-            indication = if (puzzleCell.number == 0) null else rememberRipple(
-                bounded = true,
-                radius = 100.dp,
-                color = Color.Green
-            )
-        ) {
-            if (puzzleCell.number != 0) {
-                onPuzzleCellClicked(puzzleCell)
-            }
-        },
-        contentAlignment = Alignment.Center)
-    {
-        if (puzzleCell.number != 0) {
-            Image(
-                bitmap = piece.asImageBitmap(),
-                contentDescription = null,
-                contentScale = ContentScale.Crop)
-        }
-    }
-}
-
-@Composable
 fun GameBoardScreen(
     puzzleQuestUiState: PuzzleQuestUiState,
     viewModel: CustomViewModel,
@@ -124,6 +84,7 @@ fun GameBoardScreen(
     modifier: Modifier = Modifier) {
 
     val configuration = LocalConfiguration.current
+    LockScreenOrientation(orientation = puzzleQuestUiState.orientationOfBoardingScreen)
     val smallestSide : Dp = getSmallestSide(configuration)
     val sizeOfPuzzle : Int = with(LocalDensity.current) {smallestSide.roundToPx()} / 4
     val sizeOfCellInDp = with(LocalDensity.current) { sizeOfPuzzle.toDp()}
@@ -215,18 +176,82 @@ fun GameBoardScreen(
             confirmButton = {
                 TextButton(onClick = { viewModel.startGame() }) {
                     Text(text = stringResource(id = R.string.confirm_button_title))
-            }},
+                }},
             dismissButton = { TextButton(onClick = { onBackButtonPressed() }) {
                 Text(text = stringResource(id = R.string.to_home_screen_button_title))
             }},
             title = {
-            Text(
-                text = stringResource(id = R.string.win_title))
+                Text(
+                    text = stringResource(id = R.string.win_title))
             },
             text = {
                 Text(text = stringResource(id = R.string.restart_question))
             }
         )
+    }
+}
+@Composable
+fun LockScreenOrientation(orientation: Int) {
+    val context = LocalContext.current
+    DisposableEffect(Unit) {
+        val activity = context.findActivity() ?: return@DisposableEffect onDispose {}
+        val originalOrientation = activity.requestedOrientation
+        activity.requestedOrientation = orientation
+        onDispose {
+            // restore original orientation when view disappears
+            activity.requestedOrientation = originalOrientation
+        }
+    }
+}
+
+fun Context.findActivity(): Activity? = when (this) {
+    is Activity -> this
+    is ContextWrapper -> baseContext.findActivity()
+    else -> null
+}
+
+@Composable
+fun Puzzle(
+    bitmap: Bitmap,
+    puzzleCell: PuzzleCell,
+    modifier: Modifier,
+    onPuzzleCellClicked : (PuzzleCell) -> Unit,
+) {
+    val update = updateTransition(targetState = puzzleCell.offsetState, label = "")
+    val animateOffset by update.animateIntOffset(label = "") {it}
+
+    val width = bitmap.width / 4
+    val height = bitmap.height / 4
+    val piece = remember (puzzleCell) {
+        Bitmap.createBitmap(bitmap, puzzleCell.column * width, puzzleCell.row * height, width, height)
+    }
+
+    Box(modifier = modifier
+        .offset {
+            animateOffset
+        }
+        .clickable(
+            interactionSource = remember {
+                MutableInteractionSource()
+            },
+            indication = if (puzzleCell.number == 0) null else rememberRipple(
+                bounded = true,
+                radius = 100.dp,
+                color = Color.Green
+            )
+        ) {
+            if (puzzleCell.number != 0) {
+                onPuzzleCellClicked(puzzleCell)
+            }
+        },
+        contentAlignment = Alignment.Center)
+    {
+        if (puzzleCell.number != 0) {
+            Image(
+                bitmap = piece.asImageBitmap(),
+                contentDescription = null,
+                contentScale = ContentScale.Crop)
+        }
     }
 }
 

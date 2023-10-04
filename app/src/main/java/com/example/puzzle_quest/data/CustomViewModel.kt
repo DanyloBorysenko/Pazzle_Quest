@@ -30,7 +30,7 @@ class CustomViewModel : ViewModel() {
 
     fun resetGame() {
         _data.clear()
-        _uiState.value = PuzzleQuestUiState(bitmap = null)
+        _uiState.value = PuzzleQuestUiState(bitmap = null, loadingDone = true)
     }
 
     fun startGame() {
@@ -149,6 +149,17 @@ class CustomViewModel : ViewModel() {
         val bitMap = BitmapFactory.decodeStream(inputStream)
         _uiState.update { currentState ->
             currentState.copy(bitmap = bitMap, selectedImage = imageRes)
+        }
+    }
+    fun updateRemoteLink(infoLink : String) {
+        _uiState.update { currentState ->
+            currentState.copy(infoLink = infoLink)
+        }
+    }
+
+    fun finishLoading() {
+        _uiState.update { currentState ->
+            currentState.copy(loadingDone = true)
         }
     }
 }
